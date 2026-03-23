@@ -1,0 +1,152 @@
+import os
+from dotenv import load_dotenv
+from google.adk.agents.llm_agent import Agent
+from google.adk.agents import SequentialAgent
+
+load_dotenv()
+model = os.getenv("MODEL")
+
+# 1. Summarizer
+summarizer = Agent(
+    name="summarizer",
+    model=model,
+    instruction="Summarize the given text clearly.",
+    output_key="result"
+)
+
+# 2. QA Agent
+qa_agent = Agent(
+    name="qa_agent",
+    model=model,
+    instruction="Answer the user's question clearly.",
+    output_key="result"
+)
+
+# 3. Classifier
+classifier = Agent(
+    name="classifier",
+    model=model,
+    instruction="""
+    Classify the text as:
+    - Positive
+    - Negative
+    - Neutral
+    """,
+    output_key="result"
+)
+
+# 4. Support Router
+support_router = Agent(
+    name="support_router",
+    model=model,
+    instruction="""
+    Classify request into:
+    - Billing Support
+    - Technical Support
+    - General Support
+    """,
+    output_key="result"
+)
+
+
+source venv/bin/activate
+cloudshell open-workspace ~/zoo_guide_agent
+
+multi_task_agent
+cloudshell open-workspace ~/agents
+uv venv
+source .venv/bin/activate
+uv pip install -r multi_task_agent/requirements.txt
+# 1. Set the variables in your terminal first
+PROJECT_ID=$(gcloud config get-value project)
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+SA_NAME=lab2-cr-service
+
+# 2. Create the .env file using those variables
+cat <<EOF > .env
+PROJECT_ID=$PROJECT_ID
+PROJECT_NUMBER=$PROJECT_NUMBER
+SA_NAME=$SA_NAME
+SERVICE_ACCOUNT=${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+MODEL="gemini-2.5-flash"
+EOF
+
+gcloud iam service-accounts create ${SA_NAME} \
+    --display-name="Service Account for lab 2 "	
+	
+	# Grant the "Vertex AI User" role to your service account
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/aiplatform.user"
+ 
+gcloud services enable \
+  run.googleapis.com \
+  artifactregistry.googleapis.com \
+  cloudbuild.googleapis.com \
+  aiplatform.googleapis.com \
+  compute.googleapis.com
+
+  
+  
+  cd && mkdir multi_task_agent && cd multi_task_agent
+  cloudshell open-workspace ~/multi_task_agent
+  
+  
+  MODEL=gemini-1.5-flash
+  
+  
+  # 1. Set the variables in your terminal first
+PROJECT_ID=$(gcloud config get-value project)
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+SA_NAME=lab2-cr-service
+
+# 2. Create the .env file using those variables
+cat <<EOF > .env
+PROJECT_ID=$PROJECT_ID
+PROJECT_NUMBER=$PROJECT_NUMBER
+SA_NAME=$SA_NAME
+SERVICE_ACCOUNT=${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com
+MODEL="gemini-2.5-flash"
+EOF
+
+
+gcloud iam service-accounts create ${SA_NAME} \
+    --display-name="Service Account for lab 2 "	
+	
+	# Grant the "Vertex AI User" role to your service account
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+  --member="serviceAccount:$SERVICE_ACCOUNT" \
+  --role="roles/aiplatform.user"
+ 
+
+# Run the deployment command
+uvx --from google-adk==1.14.0 \
+adk deploy cloud_run \
+  --project=$PROJECT_ID \
+  --region=europe-west1 \
+  --service_name=multi-task-agent \
+  --with_ui \
+  . \
+  -- \
+  --labels=dev-tutorial=codelab-adk \
+  --service-account=$SERVICE_ACCOUNT
+  
+  
+uvx --from google-adk==1.14.0 \
+adk deploy cloud_run \
+  --project=$PROJECT_ID \
+  --region=europe-west1 \
+  --service_name=multi_task_agent \
+  --with_ui \
+  . \
+  -- \
+  --labels=dev-tutorial=codelab-adk \
+  --service-account=$SERVICE_ACCOUNT
+  
+  
+  
+git config --global user.email "dineshj.msec@gmail.com"
+  git config --global user.name "Dinesh Janarthanam"
+  
+  
+  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
